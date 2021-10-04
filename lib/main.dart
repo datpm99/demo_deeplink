@@ -1,5 +1,7 @@
+import 'package:deeplink_google_firebase/home_view.dart';
 import 'package:firebase_dynamic_links/firebase_dynamic_links.dart';
 import 'package:flutter/material.dart';
+import 'dialog_loading.dart';
 
 void main() {
   runApp(const MyApp());
@@ -14,19 +16,19 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: const MyHomePage(),
+      home: const MainView(),
     );
   }
 }
 
-class MyHomePage extends StatefulWidget {
-  const MyHomePage({Key? key}) : super(key: key);
+class MainView extends StatefulWidget {
+  const MainView({Key? key}) : super(key: key);
 
   @override
-  State<MyHomePage> createState() => _MyHomePageState();
+  _MainViewState createState() => _MainViewState();
 }
 
-class _MyHomePageState extends State<MyHomePage> {
+class _MainViewState extends State<MainView> {
   void initDynamicLinks() async {
     FirebaseDynamicLinks.instance.onLink(
         onSuccess: (PendingDynamicLinkData? dynamicLink) async {
@@ -34,12 +36,24 @@ class _MyHomePageState extends State<MyHomePage> {
 
       if (deepLink != null) {
         print('DeepLink: ${deepLink.path} ');
-        //Navigator.pushNamed(context, deepLink.path);
+        showDialogLoading();
+        Future.delayed(const Duration(seconds: 3), () {
+          Navigator.pop(context);
+          Navigator.push(context,
+              MaterialPageRoute(builder: (context) => const HomeView()));
+        });
       }
     }, onError: (OnLinkErrorException e) async {
       print('onLinkError');
       print(e.message);
     });
+  }
+
+  void showDialogLoading() {
+    showDialog(
+      context: context,
+      builder: (context) => const DialogLoading(),
+    );
   }
 
   @override
@@ -51,14 +65,9 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('DeepLink GG Firebase'),
-      ),
-      body: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: <Widget>[
-          Text('Demo App DeepLink GG Firebase'),
-        ],
+      appBar: AppBar(title: const Text('DeepLink GG Firebase')),
+      body: const Center(
+        child: Text('This is Main View', style: TextStyle(fontSize: 40)),
       ),
     );
   }
